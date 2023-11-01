@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Brain Stroke Prediction</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Brain Stroke Prediction</h1>
+      <form action="/predict" method="post" onsubmit="return submitForm()">
+        <div class="form-group">
+          <label for="gender">Gender:</label>
+          <select name="gender" id="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="age">Age:</label>
+          <input type="number" name="age" id="age" required />
+        </div>
+        <div class="form-group">
+          <label for="hypertension">Hypertension:</label>
+          <select name="hypertension" id="hypertension">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="heart_disease">Heart Disease:</label>
+          <select name="heart_disease" id="heart_disease">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ever_married">Ever Married:</label>
+          <select name="ever_married" id="ever_married">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="work_type">Work Type:</label>
+          <select name="work_type" id="work_type">
+            <option value="Govt job">Govt job</option>
+            <option value="Never worked">Never worked</option>
+            <option value="Private">Private</option>
+            <option value="Self-employed">Self-employed</option>
+            <option value="children">Children</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Residence_type">Residence Type:</label>
+          <select name="Residence_type" id="Residence_type">
+            <option value="urban">Urban</option>
+            <option value="rural">Rural</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="avg_glucose_level">Average Glucose Level:</label>
+          <input
+            type="number"
+            step="0.01"
+            name="avg_glucose_level"
+            id="avg_glucose_level"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="bmi">BMI:</label>
+          <input type="number" step="0.01" name="bmi" id="bmi" required />
+        </div>
+        <div class="form-group">
+          <label for="smoking_status">Smoking Status:</label>
+          <select name="smoking_status" id="smoking_status">
+            <option value="formerly smoked">Formerly Smoked</option>
+            <option value="never smoked">Never Smoked</option>
+            <option value="smokes">Smokes</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button type="submit">Predict</button>
+        </div>
+      </form>
+      <div class="result"></div>
+    </div>
+
+    <script>
+      function submitForm() {
+        const form = document.querySelector("form");
+        const resultDiv = document.querySelector(".result");
+
+        // Map user-friendly options to numerical values
+        const data = {
+          gender: form.gender.value,
+          age: parseInt(form.age.value),
+          hypertension: form.hypertension.value,
+          heart_disease: form.heart_disease.value,
+          ever_married: form.ever_married.value,
+          work_type: form.work_type.value,
+          Residence_type: form.Residence_type.value,
+          avg_glucose_level: parseFloat(form.avg_glucose_level.value),
+          bmi: parseFloat(form.bmi.value),
+          smoking_status: form.smoking_status.value,
+        };
+
+        // Send a POST request to the /predict endpoint with JSON data
+        fetch("/predict", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error(`Request failed with status: ${response.status}`);
+            }
+          })
+          .then((data) => {
+            if (data.result && data.probability !== undefined) {
+              resultDiv.innerHTML = `<p>${data.result}</p><p>Prediction Probability: ${data.probability}</p>`;
+            } else {
+              resultDiv.innerHTML = "Invalid response from the server.";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            resultDiv.innerHTML =
+              "An error occurred while making the prediction.";
+          });
+
+        return false; // Prevent the form from submitting via a traditional HTTP request
+      }
+    </script>
+  </body>
+</html>
