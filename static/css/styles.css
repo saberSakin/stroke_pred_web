@@ -1,0 +1,5 @@
+#uploaded-image {
+  max-width: 100%;
+  margin-top: 20px;
+  display: none; /* Add this line to hide it initially */
+}
